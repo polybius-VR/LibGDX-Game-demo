@@ -103,7 +103,7 @@ public class MapRenderer {
 		
 		this.tile = new TextureRegion(new Texture(Gdx.files.internal("assets" + File.separator + "tile.png")), 0, 0, 20, 20);
 		
-		Texture playerTexture = new Texture(Gdx.files.internal("assets" + File.separator + "Bob.png"));
+		Texture playerTexture = new Texture(Gdx.files.internal("assets" + File.separator + "bob.png"));
 		TextureRegion[] split = new TextureRegion(playerTexture).split(20, 20)[0];
 		TextureRegion[] mirror = new TextureRegion(playerTexture).split(20, 20)[0];
 		

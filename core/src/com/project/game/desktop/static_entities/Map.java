@@ -40,9 +40,9 @@ public class Map {
 		
 		tiles = new int[pixmap.getWidth()][pixmap.getHeight()];
 		
-		for (int y = 0; y < 35; y++) {
+		for (int y = 0; y < pixmap.getHeight(); y++) {
 			
-			for (int x = 0; x < 150; x++) {
+			for (int x = 0; x < pixmap.getWidth(); x++) {
 		
 				int pix = (pixmap.getPixel(x, y) >>> 8) & 0xffffff;
 				

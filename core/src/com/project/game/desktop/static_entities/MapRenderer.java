@@ -19,7 +19,7 @@ public class MapRenderer {
 	Map map;
 	OrthographicCamera cam;
 	SpriteCache cache;
-	SpriteBatch batch = new SpriteBatch(5460);
+	SpriteBatch batch = new SpriteBatch();
 	
 	ImmediateModeRenderer20 renderer = new ImmediateModeRenderer20(false, true, 0);
 	
@@ -34,9 +34,6 @@ public class MapRenderer {
 	Animation playerIdleRight;
 	Animation playerDead;
 	Animation zap;
-	
-	TextureRegion cube;
-	Animation cubeFixed;
 	
 	TextureRegion cubeControlled;
 	TextureRegion dispenser;
@@ -101,7 +98,7 @@ public class MapRenderer {
  
 	private void createAnimations () {
 		
-		this.tile = new TextureRegion(new Texture(Gdx.files.internal("assets" + File.separator + "tile.png")), 0, 0, 20, 20);
+		this.tile = new TextureRegion(new Texture(Gdx.files.internal("assets" + File.separator + "tile.png")), 1, 1, 16, 16);
 		
 		Texture playerTexture = new Texture(Gdx.files.internal("assets" + File.separator + "bob.png"));
 		TextureRegion[] split = new TextureRegion(playerTexture).split(20, 20)[0];
@@ -124,8 +121,6 @@ public class MapRenderer {
 		playerDead = new Animation(0.2f, split[0]);
 		
 		split = new TextureRegion(playerTexture).split(20, 20)[1];
-		cube = split[0];
-		cubeFixed = new Animation(1, split[1], split[2], split[3], split[4], split[5]);
 		
 		split = new TextureRegion(playerTexture).split(20, 20)[2];
 		
@@ -165,8 +160,8 @@ public class MapRenderer {
 		Gdx.gl.glDisable(GL20.GL_BLEND);
 		cache.begin();
 		
-		for (int blockY = 0; blockY < 4; blockY++) {
-			for (int blockX = 0; blockX < 6; blockX++) {
+		for (int blockY = 0; blockY < 10; blockY++) {
+			for (int blockX = 0; blockX < 10; blockX++) {
 				cache.draw(blocks[blockX][blockY]);
 			}
 		}
@@ -178,7 +173,6 @@ public class MapRenderer {
 		batch.begin();
  
 		renderPlayerCharacter();
-		renderCube();
 		renderDispensers();
  
 		batch.end();
@@ -224,21 +218,6 @@ public class MapRenderer {
 		batch.draw(anim.getKeyFrame(map.player.stateTime, loop), map.player.pos.x, map.player.pos.y, 1, 1);
 	}
  
-	private void renderCube () {
-		
-		if (map.cube.state == Cube.FOLLOW){
-			batch.draw(cube, map.cube.pos.x, map.cube.pos.y, 1.5f, 1.5f);
-		}
-		if (map.cube.state == Cube.FIXED)
-		{
-			batch.draw(cubeFixed.getKeyFrame(map.cube.stateTime, false), map.cube.pos.x, map.cube.pos.y, 1.5f, 1.5f);
-		}
-		if (map.cube.state == Cube.CONTROLLED){
-			batch.draw(cubeControlled, map.cube.pos.x, map.cube.pos.y, 1.5f, 1.5f);
-		}
-		
-	}
- 
 	private void renderDispensers () {
 		for (int i = 0; i < map.dispensers.size; i++) {
 			Dispenser dispenser = map.dispensers.get(i);
@@ -250,6 +229,5 @@ public class MapRenderer {
 		cache.dispose();
 		batch.dispose();
 		tile.getTexture().dispose();
-		cube.getTexture().dispose();
 	}
 }

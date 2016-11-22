@@ -4,7 +4,11 @@ import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
+import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -53,11 +57,33 @@ public class HelloWorld extends JFrame{
 		OkListener2 listener2 = new OkListener2();
 		jbtDialogOK.addActionListener(listener2);
 	}
+	
+	private void drawFile(){
+		BufferedImage img = new BufferedImage(240, 160, BufferedImage.TYPE_INT_RGB);
+		
+		for (int i = 0; i < img.getWidth(); i++){
+			for (int j = 0; j < img.getHeight(); j++){
+				if (j > 15)					
+					img.setRGB(i, j, 0xffffff);
+			}
+		}
+		
+		img.setRGB(6, 15, 0xff0100);
+		
+		File outputFile = new File("levelsTest.png");
+		try {
+			ImageIO.write(img, "png", outputFile);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 	class OkListener implements ActionListener {
 
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
+			drawFile();
 			dialog.setVisible(true); // show the dialog on the screen
 
 			// Do something here

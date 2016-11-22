@@ -12,4 +12,12 @@ public class DesktopLauncher {
 		//new LwjglApplication(new MyGdxGame(), config);
 		new LwjglApplication(new Platformer(), config);
 	}
+	
+	public void runGame(){
+		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
+		config.width = 1280;
+		config.height = 720;
+		//new LwjglApplication(new MyGdxGame(), config);
+		new LwjglApplication(new Platformer(), config);
+	}
 }

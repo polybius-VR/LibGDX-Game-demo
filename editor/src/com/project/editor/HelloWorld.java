@@ -63,14 +63,14 @@ public class HelloWorld extends JFrame{
 		
 		for (int i = 0; i < img.getWidth(); i++){
 			for (int j = 0; j < img.getHeight(); j++){
-				if (j > 15)					
+				if ((j > 8 && j < 11) || (j == 0 || j == img.getHeight() - 1) || i == 0 || i == img.getWidth() - 1)					
 					img.setRGB(i, j, 0xffffff);
 			}
 		}
 		
-		img.setRGB(6, 15, 0xff0100);
+		img.setRGB(8, 8, 0xff0000);
 		
-		File outputFile = new File("levelsTest.png");
+		File outputFile = new File(".." + File.separator + "desktop" + File.separator + "assets" + File.separator + "levels.png");
 		try {
 			ImageIO.write(img, "png", outputFile);
 		} catch (IOException e) {
@@ -85,11 +85,9 @@ public class HelloWorld extends JFrame{
 		public void actionPerformed(ActionEvent arg0) {
 			drawFile();
 			dialog.setVisible(true); // show the dialog on the screen
-
 			// Do something here
 			//dialog.setVisible(false); // set visibility to false when the code has run
 		}
-
 	}
 	
 	class OkListener2 implements ActionListener {

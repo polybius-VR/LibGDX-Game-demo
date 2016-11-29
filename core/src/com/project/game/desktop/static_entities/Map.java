@@ -1,6 +1,13 @@
 package com.project.game.desktop.static_entities;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -20,12 +27,12 @@ public class Map {
 	static int LASER = 0x00ffff;
 
 	public int[][] tiles;
-	
+
 	public PlayerCharacter player;
-	
+
 	Array<Dispenser> dispensers;
 	Dispenser activeDispenser = null;
-	
+
 	public Cube cube;
 
 	public Map () {
@@ -33,19 +40,20 @@ public class Map {
 	}
 
 	private void loadBinary () {
-		
+
 		dispensers = new Array<Dispenser>();
-		
+
+		retrieveImage();
 		Pixmap pixmap = new Pixmap(Gdx.files.internal("assets" + File.separator + "levels.png"));
-		
+
 		tiles = new int[pixmap.getWidth()][pixmap.getHeight()];
-		
+
 		for (int y = 0; y < pixmap.getHeight(); y++) {
-			
+
 			for (int x = 0; x < pixmap.getWidth(); x++) {
-		
+
 				int pix = (pixmap.getPixel(x, y) >>> 8) & 0xffffff;
-				
+
 				if (match(pix, START)) {
 					Dispenser dispenser = new Dispenser(x, pixmap.getHeight() - 1 - y);
 					dispensers.add(dispenser);
@@ -65,30 +73,60 @@ public class Map {
 
 	}
 
+	public void retrieveImage(){
+		System.out.println("Retrive Image Example!");
+		String driverName = "com.mysql.jdbc.Driver";
+		String url = "jdbc:mysql://localhost:3306/";
+		String dbName = "testdb";
+		String userName = "root";
+		String password = "root";
+		Connection con = null;
+		try{
+			Class.forName(driverName);
+			con = DriverManager.getConnection(url+dbName,userName,password);
+			Statement stmt = con.createStatement();
+			ResultSet rs = stmt.executeQuery("select image from image where id='test'");
+			//int i = 0;
+			while (rs.next()) {
+				InputStream in = rs.getBinaryStream(1);
+				OutputStream f = new FileOutputStream(new File(Gdx.files.local("assets" + File.separator + "levels.png").path()));
+				//i++;
+				int c = 0;
+				while ((c = in.read()) > -1) {
+					f.write(c);
+				}
+				f.close();
+				in.close();				
+			}
+		}catch(Exception ex){
+			System.out.println(ex.getMessage());
+		}
+	}
+
 	boolean match (int src, int dst) {
 		return src == dst;
 	}
 
 	public void update (float deltaTime) {
-		
+
 		player.update(deltaTime);
-		
+
 		if (player.state == PlayerCharacter.DEAD) {
 			player = new PlayerCharacter(this, activeDispenser.bounds.x, activeDispenser.bounds.y);
 		}
-		
+
 		cube.update(deltaTime);
-		
+
 		if (cube.state == Cube.DEAD) {
 			cube = new Cube(this, player.bounds.x, player.bounds.y);
 		}
-		
+
 		for (int i = 0; i < dispensers.size; i++) {
 			if (player.bounds.overlaps(dispensers.get(i).bounds)) {
 				activeDispenser = dispensers.get(i);
 			}
 		}
-		
+
 		if (cube.state == Cube.DEAD){ 
 			cube = new Cube(this, player.bounds.x, player.bounds.y);
 		}

@@ -7,10 +7,8 @@ import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 
 import javax.imageio.ImageIO;
 import javax.swing.JButton;
@@ -46,10 +44,10 @@ public class HelloWorld extends JFrame{
 	public void imageDb(File imgfile){
 		System.out.println("Insert Image Example!");
 		String driverName = "com.mysql.jdbc.Driver";
-		String url = "jdbc:mysql://localhost:3306/";
-		String dbName = "testdb";
-		String userName = "root";
-		String password = "root";
+		String url = "jdbc:mysql://polybius.is-into-games.com:3306/";
+		String dbName = "java_game_project_db";
+		String userName = "project-user";
+		String password = "comsc207";
 		Connection con = null;
 		try{
 		   Class.forName(driverName);
@@ -60,11 +58,12 @@ public class HelloWorld extends JFrame{
 		  FileInputStream fin = new FileInputStream(imgfile);
 		 
 		   PreparedStatement pre =
-		   con.prepareStatement("insert into image values(?,?,?)");
+		   con.prepareStatement("insert into levels values(NULL,?,?,?,?, NULL)");
 		 
-		   pre.setString(1,"test");
+		   pre.setString(1,"TestLevel01");
 		   pre.setInt(2,3);
 		   pre.setBinaryStream(3,(InputStream)fin,(int)imgfile.length());
+		   pre.setInt(4, 1);
 		   pre.executeUpdate();
 		   System.out.println("Successfully inserted the file into the database!");
 
@@ -75,33 +74,27 @@ public class HelloWorld extends JFrame{
 		}
 	}
 	
-	public void retrieveImage(){
-		System.out.println("Retrive Image Example!");
+	public void deleteImages(){
+		System.out.println("Insert Image Example!");
 		String driverName = "com.mysql.jdbc.Driver";
-		String url = "jdbc:mysql://localhost:3306/";
-		String dbName = "testdb";
-		String userName = "root";
-		String password = "root";
+		String url = "jdbc:mysql://polybius.is-into-games.com:3306/";
+		String dbName = "java_game_project_db";
+		String userName = "project-user";
+		String password = "comsc207";
 		Connection con = null;
 		try{
-			Class.forName(driverName);
-			con = DriverManager.getConnection(url+dbName,userName,password);
-			Statement stmt = con.createStatement();
-			ResultSet rs = stmt.executeQuery("select image from image");
-			int i = 0;
-			while (rs.next()) {
-				InputStream in = rs.getBinaryStream(1);
-				OutputStream f = new FileOutputStream(new File("test"+i+".png"));
-				i++;
-				int c = 0;
-				while ((c = in.read()) > -1) {
-					f.write(c);
-				}
-				f.close();
-				in.close();
-			}
-		}catch(Exception ex){
-			System.out.println(ex.getMessage());
+		   Class.forName(driverName);
+		   con = DriverManager.getConnection(url+dbName,userName,password);
+		   
+		   PreparedStatement pre = con.prepareStatement("delete from levels where 1=1");
+		   pre.executeUpdate();
+		   
+		   System.out.println("Successfully deleted levels from the database!");
+
+		   pre.close();
+		   con.close(); 
+		}catch (Exception e1){
+			System.out.println(e1.getMessage());
 		}
 	}
 
@@ -146,6 +139,7 @@ public class HelloWorld extends JFrame{
 			e.printStackTrace();
 		}
 		
+		deleteImages();
 		imageDb(outputFile);
 		//retrieveImage();
 	}

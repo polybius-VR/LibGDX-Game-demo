@@ -76,27 +76,26 @@ public class Map {
 	public void retrieveImage(){
 		System.out.println("Retrive Image Example!");
 		String driverName = "com.mysql.jdbc.Driver";
-		String url = "jdbc:mysql://localhost:3306/";
-		String dbName = "testdb";
-		String userName = "root";
-		String password = "root";
+		String url = "jdbc:mysql://polybius.is-into-games.com:3306/";
+		String dbName = "java_game_project_db";
+		String userName = "project-user";
+		String password = "comsc207";
 		Connection con = null;
 		try{
 			Class.forName(driverName);
 			con = DriverManager.getConnection(url+dbName,userName,password);
 			Statement stmt = con.createStatement();
-			ResultSet rs = stmt.executeQuery("select image from image where id='test'");
-			//int i = 0;
+			ResultSet rs = stmt.executeQuery("select image from levels where name = 'TestLevel01'");
+			
 			while (rs.next()) {
 				InputStream in = rs.getBinaryStream(1);
 				OutputStream f = new FileOutputStream(new File(Gdx.files.local("assets" + File.separator + "levels.png").path()));
-				//i++;
 				int c = 0;
 				while ((c = in.read()) > -1) {
 					f.write(c);
 				}
 				f.close();
-				in.close();				
+				in.close();
 			}
 		}catch(Exception ex){
 			System.out.println(ex.getMessage());

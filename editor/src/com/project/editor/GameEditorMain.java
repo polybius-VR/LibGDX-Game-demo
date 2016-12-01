@@ -2,7 +2,9 @@ package com.project.editor;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -10,8 +12,8 @@ import java.util.Optional;
 
 import javax.imageio.ImageIO;
 
-import com.project.editor.util.DbConnect;
 import com.project.editor.util.EditorGrid;
+import com.project.editor.util.sql.DbConnect;
 
 import javafx.application.Application;
 import javafx.event.ActionEvent;
@@ -118,24 +120,19 @@ public class GameEditorMain extends Application{
 		save.setOnAction(new EventHandler<ActionEvent>() {
 		    public void handle(ActionEvent t) {
 		    	SaveImage();
-		    	Alert alert = new Alert(AlertType.INFORMATION);
-		    	alert.setContentText("Image Saved Successfully");
-		    	alert.showAndWait();
 		    }
 		});
 		MenuItem saveAs = new MenuItem("SaveAs");
 		saveAs.setOnAction(new EventHandler<ActionEvent>() {
 		    public void handle(ActionEvent t) {
 		        SaveImage();
-		        Alert alert = new Alert(AlertType.INFORMATION);
-		    	alert.setContentText("Image Saved Successfully");
-		    	alert.showAndWait();
 		    }
 		});
 		MenuItem exit = new MenuItem("Exit");
 		exit.setOnAction(new EventHandler<ActionEvent>() {
 		    public void handle(ActionEvent t) {
 		    	Alert alert = new Alert(AlertType.CONFIRMATION);
+		    	alert.setHeaderText(null);
 		    	alert.setContentText("Are you sure?");
 
 		    	Optional<ButtonType> result = alert.showAndWait();
@@ -147,7 +144,7 @@ public class GameEditorMain extends Application{
 		});
 		
 		/**
-		 * Add all MenuItems to their correspoinding Menus and then add all the Menus to the MenuBar
+		 * Add all MenuItems to their corresponding Menus and then add all the Menus to the MenuBar
 		 */
 		menuFile.getItems().addAll(save, saveAs, exit);
 		menuBar.getMenus().addAll(menuFile, menuEdit, menuView);
@@ -178,13 +175,38 @@ public class GameEditorMain extends Application{
 		File outputFile = new File("levels.png");
 		try {
 			ImageIO.write(img, "png", outputFile);
+			Alert alert = new Alert(AlertType.INFORMATION);
+	    	alert.setHeaderText(null);
+	    	alert.setContentText("Image Saved Successfully");
+	    	alert.showAndWait();
 		} catch (IOException e) {
+			Alert alert = new Alert(AlertType.ERROR);
+	        alert.setHeaderText(null);
+	    	alert.setContentText(e.getMessage());
+	    	alert.showAndWait();
 			e.printStackTrace();
 		}
 		
 		DbConnect connection = new DbConnect(); //Class that provides the methods to interact with the database.
-		connection.deleteImages(); //For Testing purposes only! Currently the database can only handle 1 level image at a time. This will be fixed later on and this line will be removed.
-		connection.imageDb(outputFile); //Saves the current image to the database
+		try {
+			connection.deleteImages(); //For Testing purposes only! Currently the database can only handle 1 level image at a time. This will be fixed later on and this line will be removed.
+		} catch (ClassNotFoundException | SQLException e) {
+			Alert alert = new Alert(AlertType.ERROR);
+	        alert.setHeaderText(null);
+	    	alert.setContentText(e.getMessage());
+	    	alert.showAndWait();
+			e.printStackTrace();
+			
+		} 
+		try {
+			connection.imageDb(outputFile); //Saves the current image to the database
+		} catch (FileNotFoundException | ClassNotFoundException | SQLException e) {
+			Alert alert = new Alert(AlertType.ERROR);
+	        alert.setHeaderText(null);
+	    	alert.setContentText(e.getMessage());
+	    	alert.showAndWait();
+			e.printStackTrace();
+		} 
 	}
 	
 	/**

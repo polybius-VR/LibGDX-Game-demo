@@ -38,10 +38,13 @@ project(":desktop") {
 
     dependencies {
         compile project(":core")
+        compile project(":editor")        
         compile "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
         compile "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
         compile "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop"
 		compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.40'
+		compile group: 'org.jasypt', name: 'jasypt', version: '1.9.2'
+		compile group: 'commons-configuration', name: 'commons-configuration', version: '1.10'
     }
 }
 
@@ -50,9 +53,12 @@ project(":core") {
 
 
     dependencies {
+    	compile project(":editor")
         compile "com.badlogicgames.gdx:gdx:$gdxVersion"
         compile "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
 		compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.40'
+		compile group: 'org.jasypt', name: 'jasypt', version: '1.9.2'
+		compile group: 'commons-configuration', name: 'commons-configuration', version: '1.10'
     }
 }
 
@@ -62,6 +68,8 @@ project(":editor") {
 
     dependencies {
         compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.40'
+        compile group: 'org.jasypt', name: 'jasypt', version: '1.9.2'
+        compile group: 'commons-configuration', name: 'commons-configuration', version: '1.10'
     }
 }
 

@@ -2,16 +2,16 @@ package com.project.game.desktop.static_entities;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.SQLException;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.utils.Array;
+import com.project.editor.util.sql.DbConnect;
 import com.project.game.desktop.dynamic_entities.PlayerCharacter;
 
 public class Map {
@@ -42,9 +42,21 @@ public class Map {
 	private void loadBinary () {
 
 		dispensers = new Array<Dispenser>();
+		Pixmap pixmap;
 
-		retrieveImage();
-		Pixmap pixmap = new Pixmap(Gdx.files.internal("assets" + File.separator + "levels.png"));
+		try {
+			retrieveImage();
+			pixmap = new Pixmap(Gdx.files.internal("assets" + File.separator + "levels.png"));
+		} catch (IOException e) {
+			e.printStackTrace();
+			pixmap = new Pixmap(Gdx.files.internal("assets" + File.separator + "debugTestLevels" + File.separator + "levelsTest.png"));
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+			pixmap = new Pixmap(Gdx.files.internal("assets" + File.separator + "debugTestLevels" + File.separator + "levelsTest.png"));
+		} catch (SQLException e) {
+			e.printStackTrace();
+			pixmap = new Pixmap(Gdx.files.internal("assets" + File.separator + "debugTestLevels" + File.separator + "levelsTest.png"));
+		}
 
 		tiles = new int[pixmap.getWidth()][pixmap.getHeight()];
 
@@ -73,32 +85,19 @@ public class Map {
 
 	}
 
-	public void retrieveImage(){
-		System.out.println("Retrive Image Example!");
-		String driverName = "com.mysql.jdbc.Driver";
-		String url = "jdbc:mysql://polybius.is-into-games.com:3306/";
-		String dbName = "java_game_project_db";
-		String userName = "project-user";
-		String password = "comsc207";
-		Connection con = null;
-		try{
-			Class.forName(driverName);
-			con = DriverManager.getConnection(url+dbName,userName,password);
-			Statement stmt = con.createStatement();
-			ResultSet rs = stmt.executeQuery("select image from levels where name = 'TestLevel01'");
-			
-			while (rs.next()) {
-				InputStream in = rs.getBinaryStream(1);
-				OutputStream f = new FileOutputStream(new File(Gdx.files.local("assets" + File.separator + "levels.png").path()));
-				int c = 0;
-				while ((c = in.read()) > -1) {
-					f.write(c);
-				}
-				f.close();
-				in.close();
+	public void retrieveImage() throws IOException, ClassNotFoundException, SQLException{
+		DbConnect connection = new DbConnect();
+		ResultSet rs = connection.retrieveImage();
+		
+		while (rs.next()){
+			InputStream in = rs.getBinaryStream(1);
+			OutputStream f = new FileOutputStream(new File(Gdx.files.local("assets" + File.separator + "levels.png").path()));
+			int c = 0;
+			while ((c = in.read()) > -1) {
+				f.write(c);
 			}
-		}catch(Exception ex){
-			System.out.println(ex.getMessage());
+			f.close();
+			in.close();
 		}
 	}
 

@@ -11,7 +11,7 @@ public class SQLDriver {
 	private String dbms;
 	private String serverName;
 	private String dbName;
-	private Integer portNumber;
+	private String portNumber;
 
 	public Connection getConnection() throws SQLException {
 
@@ -71,11 +71,11 @@ public class SQLDriver {
 		this.dbName = dbName;
 	}
 
-	public Integer getPortNumber() {
+	public String getPortNumber() {
 		return portNumber;
 	}
 
-	public void setPortNumber(Integer portNumber) {
+	public void setPortNumber(String portNumber) {
 		this.portNumber = portNumber;
 	}
 }

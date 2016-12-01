@@ -3,30 +3,52 @@ package com.project.editor.util.sql;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Properties;
+
+import com.project.editor.util.EncryptDecrypt;
 
 public class DbConnect {
 	private static Connection conn;
+	String propertyFileName = "../java-game-project.properties";    
 
-	private void Connect() throws ClassNotFoundException{
+	private void connect() throws ClassNotFoundException{
+	    String userPwdKey = "java-game-project.DatabasePassword" ;
+	    String isPwdEcnryptedKey = "java-game-project.Password.IsEncrypted";
+	    
 		Class.forName("com.mysql.jdbc.Driver");
 		System.out.println("Driver loaded");
 
 		SQLDriver mysqlDriver = new SQLDriver();
-		mysqlDriver.setDbms("mysql");
-		mysqlDriver.setDbName("java_game_project_db");
-		mysqlDriver.setServerName("polybius.is-into-games.com");
-		mysqlDriver.setUserName("project-user");
-		mysqlDriver.setPassword("comsc207");
-		mysqlDriver.setPortNumber(3306);
+
+		Properties properties = new Properties();
+		try {
+			EncryptDecrypt app = new EncryptDecrypt(propertyFileName,userPwdKey,isPwdEcnryptedKey);
+	        String result = app.getDecryptedUserPassword();
+	        
+			properties.load(new FileInputStream(propertyFileName));
+			
+			mysqlDriver.setDbms("mysql");
+			mysqlDriver.setDbName(properties.getProperty("java-game-project.DatabaseName"));
+			mysqlDriver.setServerName(properties.getProperty("java-game-project.DatabaseServer"));
+			mysqlDriver.setPortNumber(properties.getProperty("java-game-project.DatabasePort"));
+			mysqlDriver.setUserName(properties.getProperty("java-game-project.DatabaseUser"));
+			mysqlDriver.setPassword(result);
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		try {
 			conn = mysqlDriver.getConnection();
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -41,7 +63,7 @@ public class DbConnect {
 	public void imageDb(File imgfile) throws FileNotFoundException, ClassNotFoundException, SQLException{
 		System.out.println("Insert Image Example!");
 
-		Connect();
+		connect();
 
 		FileInputStream fin = new FileInputStream(imgfile);
 
@@ -69,7 +91,7 @@ public class DbConnect {
 	public void deleteImages() throws ClassNotFoundException, SQLException{
 		System.out.println("Delete Previous Image Example!");
 
-		Connect();
+		connect();
 
 		PreparedStatement pre = conn.prepareStatement("delete from levels where 1=1");
 		pre.executeUpdate();
@@ -79,5 +101,21 @@ public class DbConnect {
 		pre.close();
 		conn.close();
 		System.out.println("Connection closed gracefully");
+	}
+	
+	public ResultSet retrieveImage() throws ClassNotFoundException{
+		System.out.println("Retrive Image Example!");
+
+		connect();
+		try{
+			Statement stmt = conn.createStatement();
+			ResultSet rs = stmt.executeQuery("select image from levels where name = 'TestLevel01'");
+			
+			return rs;
+			
+		}catch(Exception ex){
+			System.out.println(ex.getMessage());
+		}
+		return null;
 	}
 }

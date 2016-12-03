@@ -162,7 +162,7 @@ public class GameEditorMain extends Application{
 		 */
 		for (int i = 0; i < img.getWidth(); i++){
 			for (int j = 0; j < img.getHeight(); j++){
-				if ((j > 8 && j < 11) || (j == 0 || j == img.getHeight() - 1) || i == 0 || i == img.getWidth() - 1)					
+				if ((j > 8 && j < 12) || (j == 0 || j == img.getHeight() - 1) || i == 0 || i == img.getWidth() - 1)					
 					img.setRGB(i, j, 0xffffff);
 			}
 		}
@@ -170,6 +170,12 @@ public class GameEditorMain extends Application{
 		img.setRGB(8, 8, 0xff0000); //Set the starting point at pixels 8,8
 		
 		img.setRGB(16, 8, 0xff00ff); //Set the ending point at pixeld 16,8
+		
+		// Set some spikes for testing purposes
+		for (int i = 20; i < 25; i++) {
+			img.setRGB(i, 9, 0); 
+			img.setRGB(i, 10, 0x00ff00); 
+		}
 		
 		/**
 		 * Create the image level

@@ -52,13 +52,13 @@ public class GameScreen extends AbstractScreen {
 
 	public static String getPLAYERNAME() {
 		if (PLAYERNAME == null)
-			return "Player1";
+			return "PLAYER1";
 		else
 			return PLAYERNAME;
 	}
 
 	public static void setPLAYERNAME(String pLAYERNAME) {
-		PLAYERNAME = pLAYERNAME;
+		PLAYERNAME = pLAYERNAME.toUpperCase().trim();
 	}
 
 }

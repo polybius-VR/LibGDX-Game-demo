@@ -41,12 +41,6 @@ public class MapRenderer {
 	Animation playerIdleRight;
 	Animation playerDead;
 	Animation zap;
-	
-	TextureRegion cube;
-	
-	Animation cubeFixed;
-	
-	TextureRegion cubeControlled;
 	TextureRegion dispenser;
 	
 	Animation spawn;
@@ -67,7 +61,6 @@ public class MapRenderer {
 	public MapRenderer (Map map) {
 		
 		this.map = map;
-		//this.currentScore = map.getScore();
 		this.cam = new OrthographicCamera(24, 16);
 		this.cam.position.set(map.player.pos.x, map.player.pos.y, 0);
 		this.cache = new SpriteCache(this.map.tiles.length * this.map.tiles[0].length, false);
@@ -147,12 +140,8 @@ public class MapRenderer {
 		playerDead = new Animation(0.2f, split[0]);
 		
 		split = new TextureRegion(playerTexture).split(20, 20)[1];
-		cube = split[0];
-		cubeFixed = new Animation(1, split[1], split[2], split[3], split[4], split[5]);
-		
 		split = new TextureRegion(playerTexture).split(20, 20)[2];
 		
-		cubeControlled = split[0];
 		spawn = new Animation(0.1f, split[4], split[3], split[2], split[1]);
 		dying = new Animation(0.1f, split[1], split[2], split[3], split[4]);
 		dispenser = split[5];
@@ -164,7 +153,7 @@ public class MapRenderer {
 	public void render (float deltaTime) {
 		
 		
-		cam.position.lerp(lerpTarget.set(map.player.pos.x, map.player.pos.y, 0), 2f * deltaTime);
+		cam.position.lerp(lerpTarget.set(map.player.pos.x, map.player.pos.y + 5, 0), 2f * deltaTime);
 		
 		cam.update();
 		
@@ -251,7 +240,6 @@ public class MapRenderer {
 		cache.dispose();
 		batch.dispose();
 		tile.getTexture().dispose();
-		cube.getTexture().dispose();
 	}
 
 

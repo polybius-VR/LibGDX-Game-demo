@@ -133,6 +133,8 @@ public class MainMenuScreen extends AbstractScreen {
 	public void dispose () {
 		stage.dispose();
 		skin.dispose();
+		batch.dispose();
+		gameScreen.dispose();
 	}
 
 	@Override

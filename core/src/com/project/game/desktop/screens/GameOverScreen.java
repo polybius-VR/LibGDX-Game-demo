@@ -50,4 +50,11 @@ public class GameOverScreen extends AbstractScreen {
 		batch.dispose();
 		intro.getTexture().dispose();
 	}
+
+	@Override
+	public void dispose() {
+		batch.dispose();
+	}
+	
+	
 }

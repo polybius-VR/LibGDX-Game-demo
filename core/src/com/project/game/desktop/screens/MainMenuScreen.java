@@ -2,6 +2,7 @@ package com.project.game.desktop.screens;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input.TextInputListener;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -74,9 +75,13 @@ public class MainMenuScreen extends AbstractScreen {
 		TextButton exitButton = new TextButton("Exit",textButtonStyle);
 		exitButton.setPosition(Gdx.graphics.getWidth()/2 - Gdx.graphics.getWidth()/8 , (Gdx.graphics.getHeight()/2) - newGameButton.getHeight());
 		
+		TextButton nameButton = new TextButton("Name",textButtonStyle);
+		nameButton.setPosition(Gdx.graphics.getWidth()/2 - Gdx.graphics.getWidth()/8 , (Gdx.graphics.getHeight()/2) + newGameButton.getHeight()*2);
+		
 		stage.addActor(newGameButton);
 		stage.addActor(continueButton);
 		stage.addActor(exitButton);
+		stage.addActor(nameButton);
 
 		// Add a listener to the button. ChangeListener is fired when the button's checked state changes, eg when clicked,
 		// Button#setChecked() is called, via a key press, etc. If the event.cancel() is called, the checked state will be reverted.
@@ -84,29 +89,30 @@ public class MainMenuScreen extends AbstractScreen {
 		// revert the checked state.
 		newGameButton.addListener(new ChangeListener() {
 			public void changed (ChangeEvent event, Actor actor) {
-				//System.out.println("Clicked! Is checked: " + button.isChecked());
 				newGameButton.setText("Starting new game");
 				gameScreen = new GameScreen(game);
 				((Game) Gdx.app.getApplicationListener()).setScreen(gameScreen); 
-
 			}
 		});
 		
 		continueButton.addListener(new ChangeListener() {
 			public void changed (ChangeEvent event, Actor actor) {
-				//System.out.println("Clicked! Is checked: " + button.isChecked());
 				continueButton.setText("Loading game");
 				((Game) Gdx.app.getApplicationListener()).setScreen(gameScreen); 
-
 			}
 		});
 		
 		exitButton.addListener(new ChangeListener() {
 			public void changed (ChangeEvent event, Actor actor) {
-				//System.out.println("Clicked! Is checked: " + button.isChecked());
 				exitButton.setText("Closing Game");
 				Gdx.app.exit(); 
-
+			}
+		});
+		
+		nameButton.addListener(new ChangeListener() {
+			public void changed (ChangeEvent event, Actor actor) {
+				MyTextInputListener listener = new MyTextInputListener();
+				Gdx.input.getTextInput(listener, "Game Input", "", "Player's Name");
 			}
 		});
 
@@ -153,3 +159,15 @@ public class MainMenuScreen extends AbstractScreen {
 
 	}
 }
+
+class MyTextInputListener implements TextInputListener {
+	   @Override
+	   public void input (String text) {
+		   GameScreen.setPLAYERNAME(text);
+	   }
+
+	   @Override
+	   public void canceled () {
+		   
+	   }
+	}

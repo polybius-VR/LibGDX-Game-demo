@@ -13,32 +13,28 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.utils.Array;
 import com.project.editor.util.sql.DbConnect;
 import com.project.game.desktop.dynamic_entities.PlayerCharacter;
-
+ 
 public class Map {
-
+	
 	static int EMPTY = 0;
 	public static int TILE = 0xffffff;
 	static int START = 0xff0000;
 	static int END = 0xff00ff;
 	static int DISPENSER = 0xff0100;
 	static int SPIKES = 0x00ff00;
-	static int ROCKET = 0x0000ff;
-	static int MOVING_SPIKES = 0xffff00;
-	static int LASER = 0x00ffff;
-
+ 
 	public int[][] tiles;
-
+	
 	public PlayerCharacter player;
-
+	public EndDoor endDoor;
+	
 	Array<Dispenser> dispensers;
 	Dispenser activeDispenser = null;
-
-	public Cube cube;
-
+ 
 	public Map () {
 		loadBinary();
 	}
-
+ 
 	private void loadBinary () {
 
 		dispensers = new Array<Dispenser>();
@@ -46,16 +42,17 @@ public class Map {
 
 		try {
 			retrieveImage();
-			pixmap = new Pixmap(Gdx.files.internal("assets" + File.separator + "levels.png"));
+			System.out.println("Level Image retrieved successfully!");
+			pixmap = new Pixmap(Gdx.files.internal("assets" + File.separator + "levels" + File.separator + "level.png"));
 		} catch (IOException e) {
 			e.printStackTrace();
-			pixmap = new Pixmap(Gdx.files.internal("assets" + File.separator + "debugTestLevels" + File.separator + "levelsTest.png"));
+			pixmap = new Pixmap(Gdx.files.internal("assets" + File.separator + "levels" + File.separator + "levelTest.png"));
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
-			pixmap = new Pixmap(Gdx.files.internal("assets" + File.separator + "debugTestLevels" + File.separator + "levelsTest.png"));
+			pixmap = new Pixmap(Gdx.files.internal("assets" + File.separator + "levels" + File.separator + "levelTest.png"));
 		} catch (SQLException e) {
 			e.printStackTrace();
-			pixmap = new Pixmap(Gdx.files.internal("assets" + File.separator + "debugTestLevels" + File.separator + "levelsTest.png"));
+			pixmap = new Pixmap(Gdx.files.internal("assets" + File.separator + "levels" + File.separator + "levelTest.png"));
 		}
 
 		tiles = new int[pixmap.getWidth()][pixmap.getHeight()];
@@ -72,11 +69,11 @@ public class Map {
 					activeDispenser = dispenser;
 					player = new PlayerCharacter(this, activeDispenser.bounds.x, activeDispenser.bounds.y);
 					player.state = PlayerCharacter.SPAWN;
-					cube = new Cube(this, activeDispenser.bounds.x, activeDispenser.bounds.y);
-					cube.state = Cube.DEAD;
 				} else if (match(pix, DISPENSER)) {
 					Dispenser dispenser = new Dispenser(x, pixmap.getHeight() - 1 - y);
 					dispensers.add(dispenser);
+				} else if (match(pix, END)) {
+						endDoor = new EndDoor(x, pixmap.getHeight() - 1 - y);
 				} else {
 					tiles[x][y] = pix;
 				}
@@ -84,14 +81,14 @@ public class Map {
 		}
 
 	}
-
+	
 	public void retrieveImage() throws IOException, ClassNotFoundException, SQLException{
 		DbConnect connection = new DbConnect();
 		ResultSet rs = connection.retrieveImage();
 		
 		while (rs.next()){
 			InputStream in = rs.getBinaryStream(1);
-			OutputStream f = new FileOutputStream(new File(Gdx.files.local("assets" + File.separator + "levels.png").path()));
+			OutputStream f = new FileOutputStream(new File(Gdx.files.local("assets" + File.separator + "levels" + File.separator + "level.png").path()));
 			int c = 0;
 			while ((c = in.read()) > -1) {
 				f.write(c);
@@ -100,11 +97,11 @@ public class Map {
 			in.close();
 		}
 	}
-
+ 
 	boolean match (int src, int dst) {
 		return src == dst;
 	}
-
+ 
 	public void update (float deltaTime) {
 
 		player.update(deltaTime);
@@ -113,23 +110,13 @@ public class Map {
 			player = new PlayerCharacter(this, activeDispenser.bounds.x, activeDispenser.bounds.y);
 		}
 
-		cube.update(deltaTime);
-
-		if (cube.state == Cube.DEAD) {
-			cube = new Cube(this, player.bounds.x, player.bounds.y);
-		}
-
 		for (int i = 0; i < dispensers.size; i++) {
 			if (player.bounds.overlaps(dispensers.get(i).bounds)) {
 				activeDispenser = dispensers.get(i);
 			}
 		}
-
-		if (cube.state == Cube.DEAD){ 
-			cube = new Cube(this, player.bounds.x, player.bounds.y);
-		}
 	}
-
+ 
 	public boolean isDeadly (int tileId) {
 		return tileId == SPIKES;
 	}

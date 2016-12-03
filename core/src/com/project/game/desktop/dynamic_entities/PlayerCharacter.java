@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.project.game.desktop.static_entities.Cube;
 import com.project.game.desktop.static_entities.Map;
 
 public class PlayerCharacter {
@@ -20,7 +19,7 @@ public class PlayerCharacter {
 	public static final float ACCELERATION = 20f;
 	public static final float JUMP_VELOCITY = 10;
 	public static final float GRAVITY = 20.0f;
-	public static final float MAX_VEL = 6f;
+	public static final float MAX_VEL = 7.5f;
 	public static final float DAMP = 0.90f;
 	
 	public Vector2 pos = new Vector2();
@@ -83,7 +82,7 @@ public class PlayerCharacter {
 	
 	private void processKeys(){
 		
-		if (map.cube.state == Cube.CONTROLLED || state == SPAWN || state == DYING) return;
+		if (state == SPAWN || state == DYING) return;
 		
 		if (Gdx.input.isKeyPressed(Keys.W) && state != JUMP){
 			state = JUMP;
@@ -202,14 +201,8 @@ public class PlayerCharacter {
 		{
 			r[3].set(-1, -1, 0, 0);
 		}
- 
-		if (map.cube.state == Cube.FIXED) {
-			r[4].x = map.cube.bounds.x;
-			r[4].y = map.cube.bounds.y;
-			r[4].width = map.cube.bounds.width;
-			r[4].height = map.cube.bounds.height;
-		} else
-			r[4].set(-1, -1, 0, 0);
+
+		r[4].set(-1, -1, 0, 0);
 		 
 	}
 }

@@ -3,6 +3,7 @@ package com.project.game.desktop.static_entities;
 import java.io.File;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -12,14 +13,20 @@ import com.badlogic.gdx.graphics.g2d.SpriteCache;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ImmediateModeRenderer20;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.project.game.desktop.dynamic_entities.PlayerCharacter;
-
+import com.project.game.desktop.screens.GameScreen;
+ 
 public class MapRenderer {
-
+ 
 	Map map;
+	
 	OrthographicCamera cam;
 	SpriteCache cache;
-	SpriteBatch batch = new SpriteBatch();
+	SpriteBatch batch = new SpriteBatch(5460);
 	
 	ImmediateModeRenderer20 renderer = new ImmediateModeRenderer20(false, true, 0);
 	
@@ -35,6 +42,10 @@ public class MapRenderer {
 	Animation playerDead;
 	Animation zap;
 	
+	TextureRegion cube;
+	
+	Animation cubeFixed;
+	
 	TextureRegion cubeControlled;
 	TextureRegion dispenser;
 	
@@ -42,28 +53,43 @@ public class MapRenderer {
 	Animation dying;
 	
 	TextureRegion spikes;
-	
-	Animation rocket;
-	Animation rocketExplosion;
-	
-	TextureRegion rocketPad;
 	TextureRegion endDoor;
-	TextureRegion movingSpikes;
-	TextureRegion laser;
+	
+	Skin skin;
 	
 	float stateTime = 0;
 	Vector3 lerpTarget = new Vector3();
+	
+	Stage stage;
+	Label timeLabel;
+	float gameTime;
  
 	public MapRenderer (Map map) {
 		
 		this.map = map;
+		//this.currentScore = map.getScore();
 		this.cam = new OrthographicCamera(24, 16);
 		this.cam.position.set(map.player.pos.x, map.player.pos.y, 0);
 		this.cache = new SpriteCache(this.map.tiles.length * this.map.tiles[0].length, false);
 		this.blocks = new int[(int)Math.ceil(this.map.tiles.length / 24.0f)][(int)Math.ceil(this.map.tiles[0].length / 16.0f)];
+		
+		stage = new Stage(new ScreenViewport());
+				
+		skin = new Skin(Gdx.files.internal("assets" + File.separator + "UI" + File.separator + "uiskin.json"));
  
 		createAnimations();
 		createBlocks();
+		createLabel();
+	}
+	
+	
+	private void createLabel(){
+		
+		timeLabel = new Label("Score : 0", skin, "default");
+		timeLabel.setColor(Color.GREEN);
+		timeLabel.setPosition(5, Gdx.graphics.getHeight() - timeLabel.getHeight() - 5);
+ 
+		stage.addActor(timeLabel);
 	}
  
 	private void createBlocks () {
@@ -100,7 +126,7 @@ public class MapRenderer {
 		
 		this.tile = new TextureRegion(new Texture(Gdx.files.internal("assets" + File.separator + "images" + File.separator + "tile.png")), 1, 1, 16, 16);
 		
-		Texture playerTexture = new Texture(Gdx.files.internal("assets" + File.separator  + "images" + File.separator + "bob.png"));
+		Texture playerTexture = new Texture(Gdx.files.internal("assets" + File.separator + "images" + File.separator + "player.png"));
 		TextureRegion[] split = new TextureRegion(playerTexture).split(20, 20)[0];
 		TextureRegion[] mirror = new TextureRegion(playerTexture).split(20, 20)[0];
 		
@@ -121,6 +147,8 @@ public class MapRenderer {
 		playerDead = new Animation(0.2f, split[0]);
 		
 		split = new TextureRegion(playerTexture).split(20, 20)[1];
+		cube = split[0];
+		cubeFixed = new Animation(1, split[1], split[2], split[3], split[4], split[5]);
 		
 		split = new TextureRegion(playerTexture).split(20, 20)[2];
 		
@@ -129,32 +157,17 @@ public class MapRenderer {
 		dying = new Animation(0.1f, split[1], split[2], split[3], split[4]);
 		dispenser = split[5];
 		
-		split = new TextureRegion(playerTexture).split(20, 20)[3];
-		
-		rocket = new Animation(0.1f, split[0], split[1], split[2], split[3]);
-		rocketPad = split[4];
-		
-		split = new TextureRegion(playerTexture).split(20, 20)[4];
-		rocketExplosion = new Animation(0.1f, split[0], split[1], split[2], split[3], split[4], split[4]);
-		
 		split = new TextureRegion(playerTexture).split(20, 20)[5];
-		
 		endDoor = split[2];
-		movingSpikes = split[0];
-		laser = split[1];
 	}
  
 	public void render (float deltaTime) {
 		
-		if (map.cube.state != Cube.CONTROLLED){
-			cam.position.lerp(lerpTarget.set(map.player.pos.x, map.player.pos.y, 0), 2f * deltaTime);
-		}else{
-			cam.position.lerp(lerpTarget.set(map.cube.pos.x, map.cube.pos.y, 0), 2f * deltaTime);
- 
-		}
+		
+		cam.position.lerp(lerpTarget.set(map.player.pos.x, map.player.pos.y, 0), 2f * deltaTime);
 		
 		cam.update();
- 
+		
 		cache.setProjectionMatrix(cam.combined);
 		
 		Gdx.gl.glDisable(GL20.GL_BLEND);
@@ -167,15 +180,24 @@ public class MapRenderer {
 		}
 		
 		cache.end();
+		
 		stateTime += deltaTime;
 		
 		batch.setProjectionMatrix(cam.combined);
 		batch.begin();
-
-		renderPlayerCharacter();
+ 
+		if (map.endDoor != null) batch.draw(endDoor, map.endDoor.bounds.x, map.endDoor.bounds.y, 1, 1);
+		renderPlayerCharacter();		
 		renderDispensers();
  
 		batch.end();
+		
+		stage.draw();
+		
+		gameTime += deltaTime;
+        float minutes = (float)Math.floor(gameTime / 60.0f);
+        float seconds = gameTime - minutes * 60.0f;
+        timeLabel.setText(String.format(GameScreen.getPLAYERNAME() + "\n%.0f:%.0f", minutes, seconds));		
  
 	}
  
@@ -229,5 +251,18 @@ public class MapRenderer {
 		cache.dispose();
 		batch.dispose();
 		tile.getTexture().dispose();
+		cube.getTexture().dispose();
 	}
+
+
+	public float getGameTime() {
+		return gameTime;
+	}
+
+
+	public void setGameTime(float gameTime) {
+		this.gameTime = gameTime;
+	}
+	
+	
 }

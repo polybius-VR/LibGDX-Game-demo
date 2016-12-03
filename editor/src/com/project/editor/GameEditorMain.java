@@ -169,6 +169,8 @@ public class GameEditorMain extends Application{
 
 		img.setRGB(8, 8, 0xff0000); //Set the starting point at pixels 8,8
 		
+		img.setRGB(16, 8, 0xff00ff); //Set the ending point at pixeld 16,8
+		
 		/**
 		 * Create the image level
 		 */

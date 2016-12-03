@@ -9,6 +9,7 @@ import com.project.game.desktop.static_entities.MapRenderer;
 
 public class GameScreen extends AbstractScreen {
 	
+	private static String PLAYERNAME;
 	Map map;
 	MapRenderer mapRendered;
 
@@ -35,6 +36,10 @@ public class GameScreen extends AbstractScreen {
 		
 		mapRendered.render(delta);
 		
+		if (map.player.bounds.overlaps(map.endDoor.bounds)) {
+			game.setScreen(new GameOverScreen(game, mapRendered.getGameTime()));
+		}
+		
 		if (Gdx.input.isKeyPressed(Keys.ESCAPE)){
 			game.setScreen(new MainMenuScreen(game, this));
 		}
@@ -43,6 +48,17 @@ public class GameScreen extends AbstractScreen {
 	@Override
 	public void hide() {
 		Gdx.app.debug("Platformer Demo", "dispose game screen");
+	}
+
+	public static String getPLAYERNAME() {
+		if (PLAYERNAME == null)
+			return "Player1";
+		else
+			return PLAYERNAME;
+	}
+
+	public static void setPLAYERNAME(String pLAYERNAME) {
+		PLAYERNAME = pLAYERNAME;
 	}
 
 }

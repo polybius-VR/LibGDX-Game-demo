@@ -71,7 +71,7 @@ public class DbConnect {
 				conn.prepareStatement("insert into levels values(NULL,?,?,?,?, NULL)");
 
 		pre.setString(1,"TestLevel01");
-		pre.setInt(2,3);
+		pre.setInt(2,1);
 		pre.setBinaryStream(3,(InputStream)fin,(int)imgfile.length());
 		pre.setInt(4, 1);
 		pre.executeUpdate();

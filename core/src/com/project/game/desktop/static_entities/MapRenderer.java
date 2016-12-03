@@ -98,9 +98,9 @@ public class MapRenderer {
  
 	private void createAnimations () {
 		
-		this.tile = new TextureRegion(new Texture(Gdx.files.internal("assets" + File.separator + "tile.png")), 1, 1, 16, 16);
+		this.tile = new TextureRegion(new Texture(Gdx.files.internal("assets" + File.separator + "images" + File.separator + "tile.png")), 1, 1, 16, 16);
 		
-		Texture playerTexture = new Texture(Gdx.files.internal("assets" + File.separator + "bob.png"));
+		Texture playerTexture = new Texture(Gdx.files.internal("assets" + File.separator  + "images" + File.separator + "bob.png"));
 		TextureRegion[] split = new TextureRegion(playerTexture).split(20, 20)[0];
 		TextureRegion[] mirror = new TextureRegion(playerTexture).split(20, 20)[0];
 		
@@ -171,7 +171,7 @@ public class MapRenderer {
 		
 		batch.setProjectionMatrix(cam.combined);
 		batch.begin();
- 
+
 		renderPlayerCharacter();
 		renderDispensers();
  

@@ -14,13 +14,13 @@ public class GameScreen extends AbstractScreen {
 
 	public GameScreen(Game game) {
 		super(game);
-		// TODO Auto-generated constructor stub
+		map = new Map();
+		mapRendered = new MapRenderer(map);
 	}
 
 	@Override
 	public void show() {
-		map = new Map();
-		mapRendered = new MapRenderer(map);
+		
 	}
 
 	@Override
@@ -36,7 +36,7 @@ public class GameScreen extends AbstractScreen {
 		mapRendered.render(delta);
 		
 		if (Gdx.input.isKeyPressed(Keys.ESCAPE)){
-			game.setScreen(new MainMenu(game));
+			game.setScreen(new MainMenuScreen(game, this));
 		}
 	}
 

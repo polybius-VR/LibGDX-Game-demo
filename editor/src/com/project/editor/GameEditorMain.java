@@ -183,10 +183,6 @@ public class GameEditorMain extends Application{
 		File outputFile = new File("levels.png");
 		try {
 			ImageIO.write(img, "png", outputFile);
-			Alert alert = new Alert(AlertType.INFORMATION);
-	    	alert.setHeaderText(null);
-	    	alert.setContentText("Image Saved Successfully");
-	    	alert.showAndWait();
 		} catch (IOException e) {
 			Alert alert = new Alert(AlertType.ERROR);
 	        alert.setHeaderText(null);
@@ -208,6 +204,10 @@ public class GameEditorMain extends Application{
 		} 
 		try {
 			connection.imageDb(outputFile); //Saves the current image to the database
+			Alert alert = new Alert(AlertType.INFORMATION);
+	    	alert.setHeaderText(null);
+	    	alert.setContentText("Image Saved Successfully!");
+	    	alert.showAndWait();
 		} catch (FileNotFoundException | ClassNotFoundException | SQLException e) {
 			Alert alert = new Alert(AlertType.ERROR);
 	        alert.setHeaderText(null);

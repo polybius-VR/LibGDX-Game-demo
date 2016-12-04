@@ -12,7 +12,7 @@ public class EncryptDecrypt {
 	private final String propertyKey;
 	private final String isPropertyKeyEncrypted;
 
-	private final String decryptedUserPassword;
+	private String decryptedUserPassword;
 
 	/**
 	 * The constructor does most of the work.
@@ -32,8 +32,9 @@ public class EncryptDecrypt {
 		this.propertyFileName = pPropertyFileName;
 		this.propertyKey = pUserPasswordKey;
 		this.isPropertyKeyEncrypted = pIsPasswordEncryptedKey;
-		
-		decryptedUserPassword = decryptPropertyValue();
+
+		this.decryptedUserPassword = "";
+		//decryptedUserPassword = decryptPropertyValue();
 	}
 
 	/**
@@ -77,21 +78,32 @@ public class EncryptDecrypt {
 		}
 	}
 
-	private String decryptPropertyValue() throws ConfigurationException {
-		System.out.println("Starting decryption");
+	public void decryptPropertyValue() throws ConfigurationException {
+
 		PropertiesConfiguration config = new PropertiesConfiguration(propertyFileName);
 		String encryptedPropertyValue = config.getString(propertyKey);
-		//System.out.println(encryptedPropertyValue); 
+		String isEncrypted = config.getString(isPropertyKeyEncrypted);
+		if(isEncrypted.equals("false")){
+			System.out.println("Password was Unencrypted");
+			decryptedUserPassword = encryptedPropertyValue;
+		}
+		else if (isEncrypted.equals("true")) { 
+			System.out.println("Starting decryption");
+			StandardPBEStringEncryptor encryptor = new StandardPBEStringEncryptor();
+			encryptor.setPassword("jasypt");
+			String decryptedPropertyValue = encryptor.decrypt(encryptedPropertyValue);
+			System.out.println("Password Decrypted"); 
 
-		StandardPBEStringEncryptor encryptor = new StandardPBEStringEncryptor();
-		encryptor.setPassword("jasypt");
-		String decryptedPropertyValue = encryptor.decrypt(encryptedPropertyValue);
-		System.out.println("Password Decrypted"); 
-
-		return decryptedPropertyValue;
+			decryptedUserPassword = decryptedPropertyValue;
+		} else {
+			throw new ConfigurationException("java-game-project.Password.IsEncrypted has an invalid value. Should be 'true' or 'false'.");
+		}
 	}
 
-	public String getDecryptedUserPassword() {
-		return decryptedUserPassword;
+	public String getDecryptedUserPassword() throws ConfigurationException {
+		if (decryptedUserPassword.equals(null) || decryptedUserPassword.isEmpty())
+			decryptPropertyValue();
+			
+		return decryptedUserPassword;		
 	}
 }

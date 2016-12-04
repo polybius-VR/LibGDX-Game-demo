@@ -3,10 +3,12 @@ package com.project.game.desktop.static_entities;
 import java.io.File;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.SpriteCache;
@@ -53,9 +55,11 @@ public class MapRenderer {
 	
 	float stateTime = 0;
 	Vector3 lerpTarget = new Vector3();
+	float offsetY = 5.0f;
 	
 	Stage stage;
 	Label timeLabel;
+	Label fpsLabel;
 	float gameTime;
  
 	public MapRenderer (Map map) {
@@ -83,6 +87,13 @@ public class MapRenderer {
 		timeLabel.setPosition(5, Gdx.graphics.getHeight() - timeLabel.getHeight() - 5);
  
 		stage.addActor(timeLabel);
+		
+		fpsLabel = new Label("60 FPS", skin, "default");
+		fpsLabel.setColor(Color.GREEN);
+		fpsLabel.setPosition(Gdx.graphics.getWidth() - fpsLabel.getWidth() - 5, Gdx.graphics.getHeight() - fpsLabel.getHeight() - 5);
+ 
+		stage.addActor(timeLabel);
+		stage.addActor(fpsLabel);
 	}
  
 	private void createBlocks () {
@@ -112,12 +123,13 @@ public class MapRenderer {
 			}
 		}
 		
-		Gdx.app.debug("Cubocy", "blocks created");
+		Gdx.app.debug("Game-Demo", "blocks created");
 	}
  
 	private void createAnimations () {
 		
-		this.tile = new TextureRegion(new Texture(Gdx.files.internal("assets" + File.separator + "images" + File.separator + "tile.png")), 1, 1, 16, 16);
+		this.tile = new TextureRegion(new Texture(Gdx.files.internal("assets" + File.separator + "images" + File.separator + "tile.png"), true), 1, 1, 32, 32);
+		this.tile.getTexture().setFilter(TextureFilter.MipMap, TextureFilter.Linear);
 		
 		Texture playerTexture = new Texture(Gdx.files.internal("assets" + File.separator + "images" + File.separator + "player.png"));
 		TextureRegion[] split = new TextureRegion(playerTexture).split(20, 20)[0];
@@ -149,17 +161,34 @@ public class MapRenderer {
 		split = new TextureRegion(playerTexture).split(20, 20)[5];
 		endDoor = split[2];
 	}
+	
+private void processKeys(){
+		
+		if (Gdx.input.isKeyPressed(Keys.S)){
+			if (offsetY > 0)
+				offsetY -= 0.1f;
+		} else {
+			if (offsetY < 5.0f)
+				offsetY += 0.1f;
+		}
+		
+	}
  
 	public void render (float deltaTime) {
 		
+		processKeys();
 		
-		cam.position.lerp(lerpTarget.set(map.player.pos.x, map.player.pos.y + 5, 0), 2f * deltaTime);
+		cam.position.lerp(lerpTarget.set(map.player.pos.x , map.player.pos.y + offsetY, 0), 2 * deltaTime);
 		
 		cam.update();
 		
 		cache.setProjectionMatrix(cam.combined);
 		
-		Gdx.gl.glDisable(GL20.GL_BLEND);
+		/**
+		 * Calculate Transparency for the SpriteCache
+		 */
+		Gdx.gl.glEnable(GL20.GL_BLEND); 
+		Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 		cache.begin();
 		
 		for (int blockY = 0; blockY < 10; blockY++) {
@@ -178,15 +207,11 @@ public class MapRenderer {
 		if (map.endDoor != null) batch.draw(endDoor, map.endDoor.bounds.x, map.endDoor.bounds.y, 1, 1);
 		renderPlayerCharacter();		
 		renderDispensers();
+		updateLabels(deltaTime);
  
 		batch.end();
 		
-		stage.draw();
-		
-		gameTime += deltaTime;
-        float minutes = (float)Math.floor(gameTime / 60.0f);
-        float seconds = gameTime - minutes * 60.0f;
-        timeLabel.setText(String.format(GameScreen.getPLAYERNAME() + "\n%.0f:%.0f", minutes, seconds));		
+		stage.draw();	
  
 	}
  
@@ -234,6 +259,15 @@ public class MapRenderer {
 			Dispenser dispenser = map.dispensers.get(i);
 			batch.draw(this.dispenser, dispenser.bounds.x, dispenser.bounds.y, 1, 1);
 		}
+	}
+	
+	private void updateLabels(float deltaTime){
+		gameTime += deltaTime;
+		long minutes = (long) Math.floor(gameTime / 60.0f);
+		long seconds = (long) (gameTime - minutes * 60.0f);
+        timeLabel.setText(String.format(GameScreen.getPLAYERNAME() + "\n" + "%02d:%02d", minutes, seconds));
+		
+		fpsLabel.setText(String.format("%d FPS", Gdx.graphics.getFramesPerSecond()));
 	}
  
 	public void dispose () {

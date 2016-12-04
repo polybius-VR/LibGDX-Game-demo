@@ -23,12 +23,14 @@ public class MainMenuScreen extends AbstractScreen {
 	SpriteBatch batch;
 	GameScreen gameScreen;
 
+	TextButton contolsButton;
+
 	public MainMenuScreen(Game game) {
 		super(game);
 		create();
 		gameScreen = new GameScreen(game);
 	}
-	
+
 	public MainMenuScreen(Game game, GameScreen gameScreen){
 		super(game);
 		create();
@@ -66,49 +68,33 @@ public class MainMenuScreen extends AbstractScreen {
 		skin.add("default", textButtonStyle);
 
 		// Create a button with the "default" TextButtonStyle. A 3rd parameter can be used to specify a name other than "default".
+		TextButton nameButton = new TextButton("Name",textButtonStyle);
+		nameButton.setPosition(Gdx.graphics.getWidth()/2 - Gdx.graphics.getWidth()/8 , (Gdx.graphics.getHeight()/2) + nameButton.getHeight()*2);
+
 		TextButton newGameButton = new TextButton("New Game",textButtonStyle);
 		newGameButton.setPosition(Gdx.graphics.getWidth()/2 - Gdx.graphics.getWidth()/8 , (Gdx.graphics.getHeight()/2) + newGameButton.getHeight());
-		
+
 		TextButton continueButton = new TextButton("Continue",textButtonStyle);
 		continueButton.setPosition(Gdx.graphics.getWidth()/2 - Gdx.graphics.getWidth()/8 , Gdx.graphics.getHeight()/2);
-		
+
+		contolsButton = new TextButton("Controls",textButtonStyle);
+		contolsButton.setPosition(Gdx.graphics.getWidth()/2 - Gdx.graphics.getWidth()/8 , (Gdx.graphics.getHeight()/2) - contolsButton.getHeight());
+
 		TextButton exitButton = new TextButton("Exit",textButtonStyle);
-		exitButton.setPosition(Gdx.graphics.getWidth()/2 - Gdx.graphics.getWidth()/8 , (Gdx.graphics.getHeight()/2) - newGameButton.getHeight());
-		
-		TextButton nameButton = new TextButton("Name",textButtonStyle);
-		nameButton.setPosition(Gdx.graphics.getWidth()/2 - Gdx.graphics.getWidth()/8 , (Gdx.graphics.getHeight()/2) + newGameButton.getHeight()*2);
-		
-		stage.addActor(newGameButton);
-		stage.addActor(continueButton);
-		stage.addActor(exitButton);
+		exitButton.setPosition(Gdx.graphics.getWidth()/2 - Gdx.graphics.getWidth()/8 , (Gdx.graphics.getHeight()/2) - exitButton.getHeight() * 2);
+
 		stage.addActor(nameButton);
+		stage.addActor(newGameButton);
+		stage.addActor(continueButton);		
+		stage.addActor(contolsButton);
+		stage.addActor(exitButton);
 
 		// Add a listener to the button. ChangeListener is fired when the button's checked state changes, eg when clicked,
 		// Button#setChecked() is called, via a key press, etc. If the event.cancel() is called, the checked state will be reverted.
 		// ClickListener could have been used, but would only fire when clicked. Also, canceling a ClickListener event won't
 		// revert the checked state.
-		newGameButton.addListener(new ChangeListener() {
-			public void changed (ChangeEvent event, Actor actor) {
-				newGameButton.setText("Starting new game");
-				gameScreen = new GameScreen(game);
-				((Game) Gdx.app.getApplicationListener()).setScreen(gameScreen); 
-			}
-		});
-		
-		continueButton.addListener(new ChangeListener() {
-			public void changed (ChangeEvent event, Actor actor) {
-				continueButton.setText("Loading game");
-				((Game) Gdx.app.getApplicationListener()).setScreen(gameScreen); 
-			}
-		});
-		
-		exitButton.addListener(new ChangeListener() {
-			public void changed (ChangeEvent event, Actor actor) {
-				exitButton.setText("Closing Game");
-				Gdx.app.exit(); 
-			}
-		});
-		
+		MainMenuScreen mainMenu = this;
+
 		nameButton.addListener(new ChangeListener() {
 			public void changed (ChangeEvent event, Actor actor) {
 				MyTextInputListener listener = new MyTextInputListener();
@@ -116,6 +102,34 @@ public class MainMenuScreen extends AbstractScreen {
 			}
 		});
 
+		newGameButton.addListener(new ChangeListener() {
+			public void changed (ChangeEvent event, Actor actor) {
+				newGameButton.setText("Starting new game");
+				gameScreen = new GameScreen(game);
+				((Game) Gdx.app.getApplicationListener()).setScreen(gameScreen); 
+			}
+		});
+
+		continueButton.addListener(new ChangeListener() {
+			public void changed (ChangeEvent event, Actor actor) {
+				continueButton.setText("Loading game");
+				((Game) Gdx.app.getApplicationListener()).setScreen(gameScreen); 
+			}
+		});
+
+		contolsButton.addListener(new ChangeListener() {
+			public void changed (ChangeEvent event, Actor actor) {
+				((Game) Gdx.app.getApplicationListener()).setScreen(new HelpScreen(game, mainMenu)); 
+				contolsButton.setChecked(false);
+			}
+		});
+
+		exitButton.addListener(new ChangeListener() {
+			public void changed (ChangeEvent event, Actor actor) {
+				exitButton.setText("Closing Game");
+				Gdx.app.exit(); 
+			}
+		});
 	}
 
 	public void render (float delta) {
@@ -163,13 +177,14 @@ public class MainMenuScreen extends AbstractScreen {
 }
 
 class MyTextInputListener implements TextInputListener {
-	   @Override
-	   public void input (String text) {
-		   GameScreen.setPLAYERNAME(text);
-	   }
-
-	   @Override
-	   public void canceled () {
-		   
-	   }
+	
+	@Override
+	public void input (String text) {
+		GameScreen.setPLAYERNAME(text);
 	}
+
+	@Override
+	public void canceled () {
+	}
+
+}

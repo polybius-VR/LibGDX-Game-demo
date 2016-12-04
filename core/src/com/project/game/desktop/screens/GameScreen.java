@@ -51,7 +51,7 @@ public class GameScreen extends AbstractScreen {
 	}
 
 	public static String getPLAYERNAME() {
-		if (PLAYERNAME == null)
+		if (PLAYERNAME == null || PLAYERNAME.isEmpty())
 			return "PLAYER1";
 		else
 			return PLAYERNAME;

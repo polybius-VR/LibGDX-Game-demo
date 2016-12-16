@@ -1,6 +1,7 @@
 package com.project.game.desktop.screens;
 
 import java.io.File;
+import java.sql.SQLException;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
@@ -9,6 +10,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.project.editor.util.sql.DbConnect;
  
 public class GameOverScreen extends AbstractScreen {
 	TextureRegion intro;
@@ -19,6 +21,12 @@ public class GameOverScreen extends AbstractScreen {
 	public GameOverScreen (Game game, float finalTime) {
 		super(game);
 		this.finalTime = finalTime;
+		DbConnect connect = new DbConnect();
+		try {
+			connect.insertScore(GameScreen.getPLAYERNAME(), GameScreen.getLevel(), finalTime);
+		} catch (ClassNotFoundException | SQLException e) {			
+			e.printStackTrace();
+		}
 	}
  
 	@Override

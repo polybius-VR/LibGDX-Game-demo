@@ -10,12 +10,14 @@ import com.project.game.desktop.static_entities.MapRenderer;
 public class GameScreen extends AbstractScreen {
 	
 	private static String PLAYERNAME;
+	private static String LEVEL;
 	Map map;
 	MapRenderer mapRendered;
 
-	public GameScreen(Game game) {
+	public GameScreen(Game game, String level) {
 		super(game);
-		map = new Map();
+		GameScreen.LEVEL = level;
+		map = new Map(level);
 		mapRendered = new MapRenderer(map);
 	}
 
@@ -59,6 +61,14 @@ public class GameScreen extends AbstractScreen {
 
 	public static void setPLAYERNAME(String pLAYERNAME) {
 		PLAYERNAME = pLAYERNAME.toUpperCase().trim();
+	}
+
+	public static String getLevel() {
+		return LEVEL;
+	}
+
+	public static void setLevel(String level) {
+		GameScreen.LEVEL = level;
 	}
 
 }

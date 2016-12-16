@@ -31,17 +31,17 @@ public class Map {
 	Array<Dispenser> dispensers;
 	Dispenser activeDispenser = null;
  
-	public Map () {
-		loadBinary();
+	public Map (String level) {
+		loadBinary(level);
 	}
  
-	private void loadBinary () {
+	private void loadBinary (String level) {
 
 		dispensers = new Array<Dispenser>();
 		Pixmap pixmap;
 
 		try {
-			retrieveImage();
+			retrieveImage(level);
 			System.out.println("Level Image retrieved successfully!");
 			pixmap = new Pixmap(Gdx.files.internal("assets" + File.separator + "levels" + File.separator + "level.png"));
 		} catch (IOException e) {
@@ -82,9 +82,9 @@ public class Map {
 
 	}
 	
-	public void retrieveImage() throws IOException, ClassNotFoundException, SQLException{
+	public void retrieveImage(String level) throws IOException, ClassNotFoundException, SQLException{
 		DbConnect connection = new DbConnect();
-		ResultSet rs = connection.retrieveImage();
+		ResultSet rs = connection.retrieveImage(level);
 		
 		while (rs.next()){
 			InputStream in = rs.getBinaryStream(1);

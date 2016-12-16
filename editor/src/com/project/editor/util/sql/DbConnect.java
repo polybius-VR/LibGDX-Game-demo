@@ -60,8 +60,12 @@ public class DbConnect {
 	 * @throws ClassNotFoundException  SQL Driver jar not found
 	 * @throws SQLException  SQL Exception
 	 */
-	public void imageDb(File imgfile) throws FileNotFoundException, ClassNotFoundException, SQLException{
-		System.out.println("Insert Image Example!");
+	public void imageDb(String imgName, String author, File imgfile) throws FileNotFoundException, ClassNotFoundException, SQLException{
+		int authorid = 1;
+		if (author.equalsIgnoreCase("Emil"))
+			authorid = 2;
+		if (author.equalsIgnoreCase("Philip"))
+			authorid = 3;
 
 		connect();
 
@@ -70,10 +74,10 @@ public class DbConnect {
 		PreparedStatement pre =
 				conn.prepareStatement("insert into levels values(NULL,?,?,?,?, NULL)");
 
-		pre.setString(1,"TestLevel01");
+		pre.setString(1,imgName);
 		pre.setInt(2,1);
 		pre.setBinaryStream(3,(InputStream)fin,(int)imgfile.length());
-		pre.setInt(4, 1);
+		pre.setInt(4, authorid);
 		pre.executeUpdate();
 		System.out.println("Successfully inserted the file into the database!");
 
@@ -89,8 +93,6 @@ public class DbConnect {
 	 * @throws SQLException SQL Exception
 	 */
 	public void deleteImages() throws ClassNotFoundException, SQLException{
-		System.out.println("Delete Previous Image Example!");
-
 		connect();
 
 		PreparedStatement pre = conn.prepareStatement("delete from levels where 1=1");
@@ -103,13 +105,11 @@ public class DbConnect {
 		System.out.println("Connection closed gracefully");
 	}
 	
-	public ResultSet retrieveImage() throws ClassNotFoundException{
-		System.out.println("Retrive Image Example!");
-
+	public ResultSet retrieveImage(String name) throws ClassNotFoundException{
 		connect();
 		try{
 			Statement stmt = conn.createStatement();
-			ResultSet rs = stmt.executeQuery("select image from levels where name = 'TestLevel01'");
+			ResultSet rs = stmt.executeQuery("select image from levels where name = '" + name + "'");
 			
 			return rs;
 			
@@ -117,5 +117,116 @@ public class DbConnect {
 			System.out.println(ex.getMessage());
 		}
 		return null;
+	}
+	
+	public ResultSet retrieveLevelList() throws ClassNotFoundException{
+		connect();
+		try{
+			Statement stmt = conn.createStatement();
+			ResultSet rs = stmt.executeQuery("select name from levels");
+			
+			return rs;
+			
+		}catch(Exception ex){
+			System.out.println(ex.getMessage());
+		}
+		return null;
+	}
+	
+	public ResultSet retrieveAuthorList() throws ClassNotFoundException{
+		connect();
+		try{
+			Statement stmt = conn.createStatement();
+			ResultSet rs = stmt.executeQuery("select name from authors");
+			
+			return rs;
+			
+		}catch(Exception ex){
+			System.out.println(ex.getMessage());
+		}
+		return null;
+	}
+	
+	public ResultSet retrieveScores() throws ClassNotFoundException{
+		connect();
+		try{
+			Statement stmt = conn.createStatement();
+			ResultSet rs = stmt.executeQuery("SELECT players.name, levels.name, scores.score, scores.date FROM scores INNER JOIN players ON players.id=scores.player_id INNER JOIN levels ON levels.id=scores.level_id");
+			
+			return rs;
+			
+		}catch(Exception ex){
+			System.out.println(ex.getMessage());
+		}
+		return null;
+	}
+	
+	public void insertScore(String playerName, String levelName, float time) throws SQLException, ClassNotFoundException{
+		Integer playerid = getPlayer(playerName);
+		Integer levelid = getLevelId(levelName);
+		connect();
+
+		PreparedStatement pre =
+				conn.prepareStatement("insert into scores values(NULL,?,?,?,NULL)");
+
+		pre.setInt(1, playerid);
+		pre.setInt(2, levelid);
+		pre.setFloat(3, time);
+		pre.executeUpdate();
+		System.out.println("Successfully inserted score into the database!");
+
+		pre.close();
+		conn.close(); 
+		System.out.println("Connection closed gracefully");
+	}
+	
+	private int getPlayer(String playerName) throws ClassNotFoundException{
+		connect();
+		try{
+			Statement stmt = conn.createStatement();
+			ResultSet rs = stmt.executeQuery("select id from players where name='" + playerName + "'");
+			
+			if (rs.next()){
+				return rs.getInt(1);
+			} else {
+				insertPlayer(playerName);
+				return getPlayer(playerName);
+			}
+			
+		}catch(Exception ex){
+			System.out.println(ex.getMessage());
+		}
+		return 0;
+	}
+	
+	private int getLevelId(String levelName) throws ClassNotFoundException{
+		connect();
+		try{
+			Statement stmt = conn.createStatement();
+			ResultSet rs = stmt.executeQuery("select id from levels where name='" + levelName + "'");
+			
+			if (rs.next()){
+				return rs.getInt(1);
+			}
+			
+		}catch(Exception ex){
+			System.out.println(ex.getMessage());
+		}
+		return 0;
+	}
+	
+	private void insertPlayer(String name) throws SQLException, ClassNotFoundException{
+		connect();
+
+		PreparedStatement pre =
+				conn.prepareStatement("insert into players values(NULL,?)");
+
+		pre.setString(1, name);
+		pre.executeUpdate();
+		System.out.println("Successfully inserted new player into the database!");
+
+		pre.close();
+		conn.close(); 
+		System.out.println("Connection closed gracefully");
 	}
 }

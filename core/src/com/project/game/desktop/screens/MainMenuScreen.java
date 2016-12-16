@@ -1,5 +1,11 @@
 package com.project.game.desktop.screens;
 
+import java.io.File;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.TextInputListener;
@@ -11,10 +17,12 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.project.editor.util.sql.DbConnect;
 
 public class MainMenuScreen extends AbstractScreen {
 
@@ -24,11 +32,14 @@ public class MainMenuScreen extends AbstractScreen {
 	GameScreen gameScreen;
 
 	TextButton contolsButton;
+	//SelectBox
+	List<String> levels = null;
+	SelectBox<String> levelList = null;
 
 	public MainMenuScreen(Game game) {
 		super(game);
 		create();
-		gameScreen = new GameScreen(game);
+		gameScreen = new GameScreen(game, "TestLevel01");
 	}
 
 	public MainMenuScreen(Game game, GameScreen gameScreen){
@@ -66,6 +77,23 @@ public class MainMenuScreen extends AbstractScreen {
 		textButtonStyle.font = skin.getFont("default");
 
 		skin.add("default", textButtonStyle);
+		
+		Skin skin2 = new Skin(Gdx.files.internal("assets" + File.separator + "UI" + File.separator + "uiskin.json"));
+
+		
+		
+		
+		try {
+			levels = retrieveLevelList();
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
+		String[] array = levels.toArray(new String[0]);
+		
+		SelectBox<String> levelList = new SelectBox<String>(skin2);
+		levelList.setItems((String[]) array);
+		levelList.setWidth(150);
+		levelList.setPosition(Gdx.graphics.getWidth()/2 - levelList.getWidth()/2, 0);
 
 		// Create a button with the "default" TextButtonStyle. A 3rd parameter can be used to specify a name other than "default".
 		TextButton nameButton = new TextButton("Name",textButtonStyle);
@@ -80,13 +108,18 @@ public class MainMenuScreen extends AbstractScreen {
 		contolsButton = new TextButton("Controls",textButtonStyle);
 		contolsButton.setPosition(Gdx.graphics.getWidth()/2 - Gdx.graphics.getWidth()/8 , (Gdx.graphics.getHeight()/2) - contolsButton.getHeight());
 
+		TextButton refreshList = new TextButton("Refresh Level List",textButtonStyle);
+		refreshList.setPosition(Gdx.graphics.getWidth()/2 - Gdx.graphics.getWidth()/8 , (Gdx.graphics.getHeight()/2) - refreshList.getHeight() * 2);
+		
 		TextButton exitButton = new TextButton("Exit",textButtonStyle);
-		exitButton.setPosition(Gdx.graphics.getWidth()/2 - Gdx.graphics.getWidth()/8 , (Gdx.graphics.getHeight()/2) - exitButton.getHeight() * 2);
+		exitButton.setPosition(Gdx.graphics.getWidth()/2 - Gdx.graphics.getWidth()/8 , (Gdx.graphics.getHeight()/2) - exitButton.getHeight() * 3);
 
+		stage.addActor(levelList);
 		stage.addActor(nameButton);
 		stage.addActor(newGameButton);
 		stage.addActor(continueButton);		
 		stage.addActor(contolsButton);
+		stage.addActor(refreshList);
 		stage.addActor(exitButton);
 
 		// Add a listener to the button. ChangeListener is fired when the button's checked state changes, eg when clicked,
@@ -105,7 +138,7 @@ public class MainMenuScreen extends AbstractScreen {
 		newGameButton.addListener(new ChangeListener() {
 			public void changed (ChangeEvent event, Actor actor) {
 				newGameButton.setText("Starting new game");
-				gameScreen = new GameScreen(game);
+				gameScreen = new GameScreen(game, levelList.getSelected());
 				((Game) Gdx.app.getApplicationListener()).setScreen(gameScreen); 
 			}
 		});
@@ -123,6 +156,18 @@ public class MainMenuScreen extends AbstractScreen {
 				contolsButton.setChecked(false);
 			}
 		});
+		
+		refreshList.addListener(new ChangeListener() {
+			public void changed (ChangeEvent event, Actor actor) {
+				try {
+					levels = retrieveLevelList();
+				} catch (ClassNotFoundException | SQLException e) {
+					e.printStackTrace();
+				}
+				String[] array = levels.toArray(new String[0]);
+				levelList.setItems((String[]) array);
+			}
+		});
 
 		exitButton.addListener(new ChangeListener() {
 			public void changed (ChangeEvent event, Actor actor) {
@@ -130,6 +175,17 @@ public class MainMenuScreen extends AbstractScreen {
 				Gdx.app.exit(); 
 			}
 		});
+	}
+	
+	private List<String> retrieveLevelList() throws ClassNotFoundException, SQLException {
+		DbConnect connection = new DbConnect();
+		List<String> list = new ArrayList<String>();
+		ResultSet rs = connection.retrieveLevelList();
+
+		while (rs.next()){
+			list.add(rs.getString(1));
+		}
+		return list;
 	}
 
 	public void render (float delta) {

@@ -149,6 +149,7 @@ public class GameEditorMain extends Application{
 		vbox.setPrefHeight(720);
 		vbox.getChildren().add(scrollPane);
 
+		primaryStage.setTitle("Game Editor");
 		primaryStage.setScene(new Scene(vbox));
 		primaryStage.show();
 
